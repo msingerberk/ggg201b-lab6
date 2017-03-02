@@ -1,0 +1,107 @@
+pip install khmer==2.0
+   
+61  mkdir ~/work
+   
+62  cd ~/work
+   
+63  curl -O -L https://s3.amazonaws.com/public.ged.msu.edu/ecoli_ref-5m.fastq.gz
+   
+64  gunzip -c ecoli_ref-5m.fastq.gz | head
+   
+65  gunzip -c ecoli_ref-5m.fastq.gz |      split-paired-reads.py -1 top.R1.fq -2 top.R2.fq
+   
+66  sudo apt-get -y install trimmomatic
+   
+67  wget https://anonscm.debian.org/cgit/debian-med/trimmomatic.git/plain/adapters/TruSeq3-PE.fa
+   
+68  TrimmomaticPE top.R1.fq top.R2.fq \ out.R1.fq unpaired1.fq out.R2.fq unpaired2.fq \  ILLUMINACLIP:TruSeq3-PE.fa:2:40:15
+   
+69  TrimmomaticPE top.R1.fq top.R2.fq \ out.R1.fq unpaired1.fq out.R2.fq unpaired2.fq \  ILLUMINACLIP:TruSeq3-PE.fa:2:40:15 \ LEADING:2 TRAIL
+ING:2 \ SLIDINGWINDOW:4:2 \ minlen:25
+   
+70  TrimmomaticPE top.R1.fq top.R2.fq \ out.R1.fq unpaired1.fq out.R2.fq unpaired2.fq \  ILLUMINACLIP:TruSeq3-PE.fa:2:40:15 \ LEADING:2 TRAIL
+ING:2 \ SLIDINGWINDOW:4:2 \ MINLEN:25
+   
+71  ls
+   
+72  cd ..
+   
+73  git clone https://github.com/voutcn/megahit.git
+   
+74  cd megahit
+   
+75  make -j 4
+   
+76  cd work
+   
+   
+78  cd ..
+   
+79  cd work
+   
+80  interleave-reads.py out.R1.fq out.R2.fq > out-pe.fq
+   
+81  ~megahit/megahit --12 out-pe.fq -o ecoli
+   
+82  ~megahit --12 out-pe.fq -o ecoli
+   
+83  ~/megahit/megahit --12 out-pe.fq -o ecoli
+   
+84  cd ~/
+   
+85  git clone https://github.com/ablab/quast.git -b release_4.2
+   
+86  export PYTHONPATH=$(pwd)/quast/libs/
+   
+87  cd work
+   
+88  ls
+   
+89  ~/quast/quast.py ecoli-assembly.fa -o ecoli_report
+   
+90  python2.7 ~/quast/quast.py ecoli-assembly.fa -o ecoli_report
+   
+91  python2.7 ~/quast/quast.py ecoli -o ecoli_report
+   
+101  cp ecoli/final.contigs.fa ecoli-assembly.fa
+  
+102  cp final.contigs.fa ecoli-assembly.fa
+  
+103  head ecoli-assembly.fa
+  
+104  cd ~/work
+  
+105  ~/quast/quast.py ecoli-assembly.fa -o ecoli_report
+  
+107  cd ecoli
+  
+108  python2.7 ~/quast/quast.py ecoli-assembly.fa -o ecoli_report
+  
+109  ls
+  
+129  cat report.txt
+
+Assembly                    ecoli-assembly
+# contigs (>= 0 bp)         119           
+# contigs (>= 1000 bp)      92            
+# contigs (>= 5000 bp)      69            
+# contigs (>= 10000 bp)     64            
+# contigs (>= 25000 bp)     52            
+# contigs (>= 50000 bp)     32            
+Total length (>= 0 bp)      4577681       
+Total length (>= 1000 bp)   4565115       
+Total length (>= 5000 bp)   4508188       
+Total length (>= 10000 bp)  4470977       
+Total length (>= 25000 bp)  4296010       
+Total length (>= 50000 bp)  3578829       
+# contigs                   102           
+Largest contig              246618        
+Total length                4571993       
+GC (%)                      50.75         
+N50                         105709        
+N75                         53842         
+L50                         15            
+L75                         30            
+# N's per 100 kbp           0.00  
+
+The results showed that there was little difference in the alignments after trimming.  The trimmed alignment was practiacally identical to the alignment we did in lab 6.  This means that if we want a better alignment we might have to provide stricter thresholds for trimming.  It could also indicate that trimming was not necessary for this file.  
